@@ -38,4 +38,29 @@ const registerUser = async (req,res)=>{
 
 }
 
-module.exports = registerUser
+const loginUser = async (req,res)=>{
+    const {email, password} = req.body
+    const alreadyUserExist = await userModel.findOne({email})
+    if(!alreadyUserExist){
+     return res.status(404).json({
+        message:'user not found'
+     })
+    }
+     
+    const isPasswordIsValid = await bcrypt.compare(password,alreadyUserExist.password)
+    if(!isPasswordIsValid){
+    return res.status(400).json({
+        message:'Invalid Email or Password'
+    })
+    }     
+
+    const token = jwt.sign({email}, process.env.JWT_SECRET)
+    res.cookie('token',token)
+    return res.status(200).json({
+    message:'logged in successfull',
+    user:alreadyUserExist,
+    token
+    })
+}
+
+module.exports = {registerUser, loginUser}
