@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const registerUser = async (req,res)=>{
     const {username, email, password, phone} = req.body
-    const hashedPassword = await bcrypt.hash(password, 10)
     if(!username || !email || !password || !phone) {
         return res.status(401).json({
             message:'all fields are required'
@@ -15,6 +14,7 @@ const registerUser = async (req,res)=>{
             message:'user already exist'
         })
     }
+    const hashedPassword = await bcrypt.hash(password, 10)
     const user = await userModel.create({
         username,
         email,
@@ -54,7 +54,7 @@ const loginUser = async (req,res)=>{
     })
     }     
 
-    const token = jwt.sign({email}, process.env.JWT_SECRET)
+    const token =  jwt.sign({email}, process.env.JWT_SECRET)
     res.cookie('token',token)
     return res.status(200).json({
     message:'logged in successfull',
